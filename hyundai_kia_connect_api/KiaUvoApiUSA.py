@@ -610,6 +610,39 @@ class KiaUvoApiUSA(ApiImpl):
             ][-1]
         except Exception:
             _LOGGER.debug(f"{DOMAIN} - SOC Levels couldn't be found. May not be an EV.")
+        try:
+            vehicle.ev_target_range_charge_AC = (
+                [
+                    x["dte"]["rangeByFuel"]["totalAvailableRange"]["value"]
+                    for x in ChargeDict
+                    if x["plugType"] == 1
+                ][-1],
+                DISTANCE_UNITS[
+                    [
+                        x["dte"]["rangeByFuel"]["totalAvailableRange"]["unit"]
+                        for x in ChargeDict
+                        if x["plugType"] == 1
+                    ][-1]
+                ],
+            )
+            vehicle.ev_target_range_charge_DC = (
+                [
+                    x["dte"]["rangeByFuel"]["totalAvailableRange"]["value"]
+                    for x in ChargeDict
+                    if x["plugType"] == 0
+                ][-1],
+                DISTANCE_UNITS[
+                    [
+                        x["dte"]["rangeByFuel"]["totalAvailableRange"]["unit"]
+                        for x in ChargeDict
+                        if x["plugType"] == 0
+                    ][-1]
+                ],
+            )
+        except Exception:
+            _LOGGER.debug(
+                f"{DOMAIN} - Target range at SOC couldn't be found. May not be an EV."
+            )
 
         vehicle.ev_driving_range = (
             get_child_value(
